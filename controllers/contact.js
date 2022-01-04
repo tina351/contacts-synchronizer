@@ -1,15 +1,26 @@
 const mailchimpService = require("../services/mailchimp");
+const mockAPIService = require("../services/mockAPI");
 
 const LIST_NAME = "Martin Long";
 
-const sync = async (req, res) => {
+const sync = async (_, res) => {
   try {
-    const list = await mailchimpService.getOrCreateList(LIST_NAME);
-    if (!list) {
-      return res.send({ code: 500, message: "Error creating Mailchimp list" });
+    const contacts = await mockAPIService.getContacts();
+    if (!contacts) {
+      return res.send({ code: 500, message: "Error accessing MockAPI contact list" });
     }
 
-    res.send({ code: 200, message: "OK" });
+    const listId = await mailchimpService.getListId(LIST_NAME);
+    if (!listId) {
+      return res.send({ code: 500, message: "Error accessing Mailchimp email list" });
+    }
+
+    const synced = mailchimpService.subscribeContactsToList(contacts.map(c => c.email), listId)
+    if (!synced) {
+      return res.send({ code: 500, message: "Error synchronizing contacts" });
+    }
+
+    res.send({ syncedContacts: contacts.length, contacts});
   } catch (err) {
     console.log(err);
     res.send({ code: 500, message: "Something went wrong" });

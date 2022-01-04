@@ -1,4 +1,4 @@
-const client = require('@mailchimp/mailchimp_marketing');
+const client = require("@mailchimp/mailchimp_marketing");
 const keys = require("../config/keys");
 
 client.setConfig({
@@ -6,28 +6,17 @@ client.setConfig({
   server: "us20",
 });
 
-const getOrCreateList = async name => {
-  const lists = await client.lists.getAllLists();
-  console.log(lists);
-  // const list = await getList(name);
-  // console.log(list)
-  // if (list) return list;
+const getListId = async (name) => {
+  const response = await client.lists.getAllLists();
+  const list = response.lists.find((ls) => ls.name === name);
+  if (list) return list.id;
 
-  //return await createList(name);
-}
+  return await createList(name);
+};
 
-const getList = async name => {
-  console.log('entra get');
+const createList = async (name) => {
   try {
-    return await client.lists.getList(name);
-  } catch (err) {
-    return undefined;
-  }
-}
-
-const createList = async name => {
-  try {
-    return await client.lists.createList({
+    const list = await client.lists.createList({
       name,
       permission_reminder: "You signed up for updates on our website",
       email_type_option: true,
@@ -46,12 +35,34 @@ const createList = async name => {
         language: "English",
       },
     });
+    return list.id;
+  } catch (err) {
+    return undefined;
+  }
+};
+
+const subscribeContactsToList = async (contacts, listId) => {
+  try {
+    const response = await client.lists.batchListMembers(listId, {
+      update_existing: true,
+      members: createMemberListFromEmailList(contacts),
+    });
+    return { updated: response.updated_members, new: response.new_members };
   } catch (err) {
     console.log(err);
     return undefined;
   }
-}
+};
+
+const createMemberListFromEmailList = (emailList) => {
+  return emailList.map((email) => ({
+    email_address: email,
+    email_type: "html",
+    status: "subscribed",
+  }));
+};
 
 module.exports = {
-  getOrCreateList
-}
+  getListId,
+  subscribeContactsToList,
+};
