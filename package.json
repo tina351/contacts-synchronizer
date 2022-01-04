@@ -1,0 +1,19 @@
+{
+  "name": "contacts-synchronizer",
+  "version": "1.0.0",
+  "description": "Syncs contacts from MockAPI to Mailchimp",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martin Long",
+  "license": "ISC",
+  "dependencies": {
+    "@mailchimp/mailchimp_marketing": "^3.0.72",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
