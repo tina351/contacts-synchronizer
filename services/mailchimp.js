@@ -4,7 +4,7 @@ const logger = require("../logger").getLogger();
 
 client.setConfig({
   apiKey: keys.mailchimpAccessToken,
-  server: "us20",
+  server: "us20"
 });
 
 const getListId = async (name) => {
@@ -32,14 +32,14 @@ const createList = async (name) => {
         city: "Montevideo",
         state: "Motevideo",
         zip: "11500",
-        country: "Uruguay",
+        country: "Uruguay"
       },
       campaign_defaults: {
         from_name: "Martin Long",
         from_email: "martin.long@gmail.com",
         subject: "Martin's Email List",
-        language: "English",
-      },
+        language: "English"
+      }
     });
     return list.id;
   } catch (err) {
@@ -50,11 +50,11 @@ const createList = async (name) => {
 
 const subscribeContactsToList = async (contacts, listId) => {
   try {
-    const response = await client.lists.batchListMembers(listId, {
+    await client.lists.batchListMembers(listId, {
       update_existing: true,
-      members: createMemberListFromEmailList(contacts),
+      members: createMemberListFromEmailList(contacts)
     });
-    return { updated: response.updated_members, new: response.new_members };
+    return true;
   } catch (err) {
     logger.err(err);
     return undefined;
@@ -65,11 +65,11 @@ const createMemberListFromEmailList = (emailList) => {
   return emailList.map((email) => ({
     email_address: email,
     email_type: "html",
-    status: "subscribed",
+    status: "subscribed"
   }));
 };
 
 module.exports = {
   getListId,
-  subscribeContactsToList,
+  subscribeContactsToList
 };
