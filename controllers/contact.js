@@ -1,5 +1,6 @@
 const mailchimpService = require("../services/mailchimp");
 const mockAPIService = require("../services/mockAPI");
+const logger = require("../logger").getLogger();
 
 const LIST_NAME = "Martin Long";
 
@@ -22,7 +23,7 @@ const sync = async (_, res) => {
 
     res.send({ syncedContacts: contacts.length, contacts});
   } catch (err) {
-    console.log(err);
+    logger.err(err);
     res.send({ code: 500, message: "Something went wrong" });
   }
 };

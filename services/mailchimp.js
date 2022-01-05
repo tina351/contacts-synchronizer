@@ -1,5 +1,6 @@
 const client = require("@mailchimp/mailchimp_marketing");
 const keys = require("../config/keys");
+const logger = require("../logger").getLogger();
 
 client.setConfig({
   apiKey: keys.mailchimpAccessToken,
@@ -7,11 +8,16 @@ client.setConfig({
 });
 
 const getListId = async (name) => {
-  const response = await client.lists.getAllLists();
-  const list = response.lists.find((ls) => ls.name === name);
-  if (list) return list.id;
-
-  return await createList(name);
+  try {
+    const response = await client.lists.getAllLists();
+    const list = response.lists.find((ls) => ls.name === name);
+    if (list) return list.id;
+  
+    return await createList(name);
+  } catch (err) {
+    logger.err(err);
+    return undefined;
+  }
 };
 
 const createList = async (name) => {
@@ -37,6 +43,7 @@ const createList = async (name) => {
     });
     return list.id;
   } catch (err) {
+    logger.err(err);
     return undefined;
   }
 };
@@ -49,7 +56,7 @@ const subscribeContactsToList = async (contacts, listId) => {
     });
     return { updated: response.updated_members, new: response.new_members };
   } catch (err) {
-    console.log(err);
+    logger.err(err);
     return undefined;
   }
 };
