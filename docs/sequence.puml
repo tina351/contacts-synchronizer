@@ -1,0 +1,28 @@
+@startuml sequence
+Client -> Node: GET /contacts/sync
+Node -> MockAPI: GET /api/v1/contacts
+alt successful case
+  MockAPI --> Node: response
+else some kind of failure
+  MockAPI --> Node: response
+  Node --> Client: status 500 
+end
+Node -> Mailchimp: GET /lists
+alt successful case
+  Mailchimp --> Node: response
+  opt list does not exist
+    Node -> Mailchimp: POST /lists
+    Mailchimp --> Node: list_id
+  end
+else some kind of failure
+  Mailchimp --> Node: response
+  Node --> Client: status 500
+end
+Node -> Mailchimp: POST /lists/{list_id}
+alt successful case
+  Mailchimp --> Node: response
+else some kind of failure
+  Mailchimp --> Node: response
+  Node --> Client: status 500
+end
+@enduml

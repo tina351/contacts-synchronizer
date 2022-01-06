@@ -1,0 +1,15 @@
+@startuml packages
+package controllers <<Folder>> {
+  class contact
+}
+package routes <<Folder>> {
+  class index
+  class contactR
+}
+package services <<Folder>> {
+  class mockAPI
+  class mailchimp
+}
+routes --> controllers
+controllers --> services
+@enduml
